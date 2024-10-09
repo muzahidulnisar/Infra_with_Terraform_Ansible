@@ -1,0 +1,27 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Configure UFW Firewall
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+    - name: Allow HTTP and HTTPS traffic
+      ufw:
+        rule: allow
+        port: "{{ item }}"
+      loop:
+        - "80"
+        - "443"
+
+    - name: Enable UFW
+      ufw:
+        state: enabled
+
+    - name: Disable root login via SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+      notify: Restart SSH

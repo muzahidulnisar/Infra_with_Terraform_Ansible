@@ -1,0 +1,38 @@
+- hosts: db
+  become: yes
+  tasks:
+    - name: Add MongoDB APT repository
+      shell: |
+        wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo tee /etc/apt/trusted.gpg.d/mongodb.asc
+      apt_repository:
+        repo: 'deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse'
+        state: present
+
+    - name: Install MongoDB
+      apt:
+        name: mongodb-org
+        state: present
+
+    - name: Start and enable MongoDB service
+      systemd:
+        name: mongod
+        enabled: yes
+        state: started
+        
+    - name: Create MongoDB admin user
+      community.mongodb.mongo_user:
+        database: admin
+        name: "{{ admin }}"
+        password: "{{ Admin@123 }}"
+        roles:
+          - root
+        login_host: localhost
+
+    - name: Create application database and user
+      community.mongodb.mongo_user:
+        database: travelmemory
+        name: "{{ muzahid }}"
+        password: "{{ Muzahid@123 }}"
+        roles:
+          - readWrite
+        login_host: localhost

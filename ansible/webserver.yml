@@ -1,0 +1,16 @@
+- hosts: web
+  become: true
+  tasks:
+    - name: Install Node.js and NPM
+      shell: |
+        sudo apt update
+        sudo apt-get install -y curl
+        curl -fsSL https://deb.nodesource.com/setup_18.x -o nodesource_setup.sh
+        sudo bash nodesource_setup.sh
+        sudo apt-get install nodejs -y
+
+    - name: Clone MERN App Repo
+      git:
+        repo: "https://github.com/UnpredictablePrashant/TravelMemory.git"
+        dest: /home/ubuntu/travelmemory
+      tags: git

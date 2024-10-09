@@ -1,0 +1,38 @@
+- hosts: web
+  become: true
+  tasks:
+    - name: Set backend environment variables
+      copy:
+        dest: /home/ubuntu/travelmemory/backend/.env
+        content: |
+          MONGO_URI='mongodb://adminUser:password123@3.6.90.75:27017/?authSource=admin'
+          PORT=3000
+
+    - name: Start backend Node.js App
+      shell: |
+        cd /home/ubuntu/travelmemory/backend && npm install
+        cp ./backend.service /etc/systemd/system
+        sudo systemctl enable backend.service
+        sudo systemctl start backend.service
+        sudo systemctl status backend.service
+      args:
+        chdir: /home/ubuntu/travelmemory/backend
+
+    - name: Set frontend environment variables
+      copy:
+        dest: /home/ubuntu/travelmemory/frontend/src/url.js
+        content: |
+          export const baseUrl = process.env.REACT_APP_BACKEND_URL || "http://3.110.157.159:3000";
+
+    - name: Start frontend Node.js App
+      shell: |
+        cd /home/ubuntu/travelmemory/frontend && npm Install
+        sudo apt-get install expect
+        sudo chmod +x run-frontend.sh
+        cp ./frontend.service /etc/systemd/system
+        sudo systemctl enable frontend.service
+        sudo systemctl start frontend.service
+        sudo systemctl status frontend.service
+
+      args:
+        chdir: /home/ubuntu/travelmemory/frontend
